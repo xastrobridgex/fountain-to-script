@@ -4,7 +4,7 @@ import mammoth from 'mammoth';
 import pdf from 'pdf-parse';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
-const Fountain = require('fountain-js');
+const fountain = require('fountain-js'); // Correct import style from docs
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,9 +34,8 @@ export async function POST(request: NextRequest) {
         return new NextResponse('Could not extract text from file.', { status: 400 });
     }
 
-    // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    const fountainInstance = new Fountain();
-    const output = fountainInstance.parse(rawText);
+    // 3. PARSE THE TEXT WITH FOUNTAIN-JS (Correct usage from docs)
+    const output = fountain.parse(rawText);
     const scriptHtml = output.html.script;
 
     // 4. GENERATE THE PDF USING PUPPETEER
@@ -73,10 +72,11 @@ export async function POST(request: NextRequest) {
 
     await browser.close();
 
-    // 5. SEND THE PDF BACK TO THE USER (Corrected with Blob)
-    return new NextResponse(new Blob([pdfBuffer], { type: 'application/pdf' }), {
+    // 5. SEND THE PDF BACK TO THE USER (Using the robust Response constructor)
+    return new Response(pdfBuffer, {
       status: 200,
       headers: {
+        'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${file.name.replace(/\.[^/.]+$/, "")}_converted.pdf"`,
       },
     });
