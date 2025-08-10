@@ -39,7 +39,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    // @ts-expect-error fountain-js is a CJS module with no official types.
     const fountainInstance = new Fountain();
     const output = fountainInstance.parse(rawText);
     const scriptHtml = output.html.script;
