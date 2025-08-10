@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
 import pdf from 'pdf-parse';
-import Fountain from 'fountain-js';
+const Fountain = require('fountain-js');
 import puppeteer from 'puppeteer-core';
 import chrome from '@sparticuz/chromium';
 
