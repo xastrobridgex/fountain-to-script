@@ -57,99 +57,255 @@ export async function POST(request: NextRequest) {
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com">
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
           <style>
+            /* Reset and Page Setup */
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            
             @page {
               size: 8.5in 11in;
-              margin: 0; /* We'll control margins with padding */
+              margin: 0;
             }
+            
+            /* Body - Main container */
             body {
-              font-family: 'Courier Prime', Courier, monospace;
+              font-family: 'Courier Prime', 'Courier New', Courier, monospace;
               font-size: 12pt;
               line-height: 1;
               margin: 0;
-              padding: 1in 1in 1in 1.5in; /* Top, Right, Bottom, Left */
-              box-sizing: border-box;
+              padding: 0;
+              width: 8.5in;
+              background: white;
+            }
+            
+            /* Page container for each page */
+            .page {
+              position: relative;
               width: 8.5in;
               height: 11in;
+              padding: 1in 1in 1in 1.5in; /* Top, Right, Bottom, Left */
+              page-break-after: always;
+              page-break-inside: avoid;
             }
-            .page-container {
-                position: relative;
-                height: 9in; /* 11in - 1in top margin - 1in bottom margin */
+            
+            .page:last-child {
+              page-break-after: avoid;
             }
+            
+            /* Page numbers */
             .page-number {
-                position: absolute;
-                top: -0.5in;
-                right: 0;
-                font-size: 12pt;
+              position: absolute;
+              top: 0.5in;
+              right: 1in;
+              font-size: 12pt;
             }
+            
+            /* Title Page Styling */
             .title-page {
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                height: 9in;
-                text-align: center;
+              width: 8.5in;
+              height: 11in;
+              padding: 1in;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              text-align: center;
+              page-break-after: always;
             }
-            .title-page .title { font-size: 24pt; margin-bottom: 1em; }
-            .title-page .credit { margin-top: 2em; }
-            .title-page .authors { margin-top: 0.5em; }
-            .title-page .date { position: absolute; bottom: 2in; }
-            .title-page .contact { position: absolute; bottom: 1.5in; }
-            .title-page .notes { position: absolute; bottom: 1in; }
-
-            .scene-heading {
+            
+            .title-page .title {
+              font-size: 14pt;
               text-transform: uppercase;
-              margin-top: 1.5em;
+              text-decoration: underline;
+              margin-bottom: 4em;
+              font-weight: normal;
+            }
+            
+            .title-page .credit {
+              font-size: 12pt;
               margin-bottom: 1em;
+            }
+            
+            .title-page .authors {
+              font-size: 12pt;
+              margin-bottom: 6em;
+            }
+            
+            .title-page .date,
+            .title-page .contact,
+            .title-page .notes {
+              font-size: 12pt;
+              position: absolute;
+              left: 1.5in;
+              right: 1in;
+            }
+            
+            .title-page .date {
+              bottom: 3in;
+            }
+            
+            .title-page .contact {
+              bottom: 2in;
+              text-align: left;
+            }
+            
+            .title-page .notes {
+              bottom: 1.5in;
+              text-align: left;
+            }
+            
+            /* Script Content Container */
+            .script-content {
+              width: 6in; /* 8.5in - 1.5in left - 1in right */
+            }
+            
+            /* Scene Headings */
+            .scene-heading {
+              font-weight: normal;
+              text-transform: uppercase;
+              margin-top: 2em;
+              margin-bottom: 1em;
+              page-break-after: avoid;
               position: relative;
             }
-            .scene-number-left {
-                position: absolute;
-                left: -0.5in;
-            }
+            
+            .scene-number-left,
             .scene-number-right {
-                position: absolute;
-                right: 0;
+              position: absolute;
+              font-weight: normal;
             }
+            
+            .scene-number-left {
+              left: -0.75in;
+            }
+            
+            .scene-number-right {
+              right: -0.5in;
+            }
+            
+            /* Action Lines */
             .action {
               margin-top: 1em;
               margin-bottom: 1em;
+              width: 6in;
+              page-break-inside: avoid;
             }
+            
+            /* Character Names */
             .character {
-              margin-left: 2.2in;
-              margin-top: 1em;
               text-transform: uppercase;
+              margin-top: 1em;
+              margin-bottom: 0;
+              margin-left: 2.2in; /* Centers at approximately 3.7in from left edge */
+              page-break-after: avoid;
             }
+            
+            /* Dialogue */
             .dialogue {
-              margin-left: 1.0in;
+              margin-top: 0;
+              margin-bottom: 0;
+              margin-left: 1in;
               margin-right: 1.5in;
+              width: 3.5in;
+              page-break-inside: avoid;
             }
+            
+            /* Parentheticals */
             .parenthetical {
+              margin-top: 0;
+              margin-bottom: 0;
               margin-left: 1.6in;
+              margin-right: 2in;
+              page-break-inside: avoid;
+              page-break-after: avoid;
             }
+            
+            /* Transitions */
             .transition {
+              text-transform: uppercase;
               text-align: right;
-              margin-top: 1.5em;
-              margin-bottom: 1.5em;
+              margin-top: 1em;
+              margin-bottom: 1em;
+              margin-right: 0;
+              page-break-after: avoid;
             }
+            
+            /* Centered Text */
             .centered {
               text-align: center;
               margin-top: 1em;
               margin-bottom: 1em;
             }
+            
+            /* Text Emphasis */
+            b {
+              font-weight: bold;
+            }
+            
+            i {
+              font-style: italic;
+            }
+            
+            u {
+              text-decoration: underline;
+            }
+            
+            /* Page break handling */
             hr {
-                visibility: hidden;
-                page-break-after: always;
+              visibility: hidden;
+              margin: 0;
+              padding: 0;
+              page-break-after: always;
+              height: 0;
+            }
+            
+            /* Ensure consistent line spacing */
+            .scene-heading,
+            .action,
+            .character,
+            .dialogue,
+            .parenthetical,
+            .transition,
+            .centered {
+              line-height: 1;
+            }
+            
+            /* Dual dialogue support (future enhancement) */
+            .dual-dialogue-container {
+              display: flex;
+              justify-content: space-between;
+              page-break-inside: avoid;
+            }
+            
+            .dual-dialogue-left,
+            .dual-dialogue-right {
+              width: 45%;
+            }
+            
+            /* CONTINUED indicators (future enhancement) */
+            .continued-top {
+              text-transform: uppercase;
+              margin-bottom: 1em;
+            }
+            
+            .continued-bottom {
+              text-transform: uppercase;
+              text-align: right;
+              margin-top: 1em;
             }
           </style>
         </head>
         <body>
-          <div class="title-page">${title_page}</div>
-          <hr> <!-- Force page break after title page -->
-          <div class="page-container">
-            <div class="page-number"></div> <!-- Placeholder for JS to fill -->
-            ${script}
+          ${title_page ? `<div class="title-page">${title_page}</div>` : ''}
+          <div class="page">
+            <div class="page-number">1.</div>
+            <div class="script-content">
+              ${script}
+            </div>
           </div>
         </body>
       </html>
@@ -157,20 +313,61 @@ export async function POST(request: NextRequest) {
 
     await page.setContent(content, { waitUntil: 'networkidle0' });
     
-    // Use JavaScript to add page numbers
+    // Improved pagination logic
     await page.evaluate(() => {
-        const pages = document.querySelectorAll('.page-container');
-        for (let i = 0; i < pages.length; i++) {
-            const pageNumDiv = pages[i].querySelector('.page-number');
-            if (pageNumDiv) {
-                pageNumDiv.innerHTML = `${i + 2}.`;
-            }
+      const scriptContent = document.querySelector('.script-content');
+      if (!scriptContent) return;
+      
+      const elements = Array.from(scriptContent.children);
+      const pageHeight = 9 * 72; // 9 inches in points (11in - 1in top - 1in bottom)
+      let currentPage = document.querySelector('.page');
+      let currentHeight = 0;
+      let pageNumber = 1;
+      
+      elements.forEach((element) => {
+        const elementHeight = (element as HTMLElement).offsetHeight;
+        
+        // Check if we need a new page
+        if (currentHeight + elementHeight > pageHeight && currentHeight > 0) {
+          // Create new page
+          const newPage = document.createElement('div');
+          newPage.className = 'page';
+          
+          // Add page number
+          const pageNumberDiv = document.createElement('div');
+          pageNumberDiv.className = 'page-number';
+          pageNumberDiv.textContent = `${++pageNumber}.`;
+          newPage.appendChild(pageNumberDiv);
+          
+          // Create new script content container
+          const newScriptContent = document.createElement('div');
+          newScriptContent.className = 'script-content';
+          newPage.appendChild(newScriptContent);
+          
+          // Insert new page after current page
+          currentPage.after(newPage);
+          currentPage = newPage;
+          currentHeight = 0;
+          
+          // Move element to new page
+          newScriptContent.appendChild(element);
+          currentHeight += elementHeight;
+        } else {
+          currentHeight += elementHeight;
         }
+      });
     });
 
     const pdfBuffer = await page.pdf({ 
         format: 'letter',
         printBackground: true,
+        displayHeaderFooter: false,
+        margin: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0
+        }
     });
 
     await browser.close();
