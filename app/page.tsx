@@ -2,29 +2,29 @@
 
 import React, { useState, useMemo } from 'react';
 
-// ========= ICONS (SVG Components) =========
-const ChevronDownIcon = ({ className }) => (
+// ========= ICONS (SVG Components) - Corrected with Types =========
+const ChevronDownIcon = ({ className }: { className: string }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
     <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
   </svg>
 );
 
-const MenuIcon = ({ className }) => (
+const MenuIcon = ({ className }: { className: string }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
     </svg>
 );
 
-const XIcon = ({ className }) => (
+const XIcon = ({ className }: { className: string }) => (
     <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
     </svg>
 );
 
 
-// ========= SIDEBAR COMPONENT =========
-const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
-  const [openSection, setOpenSection] = useState(null);
+// ========= SIDEBAR COMPONENT - Corrected with Types =========
+const Sidebar = ({ isSidebarOpen, toggleSidebar }: { isSidebarOpen: boolean, toggleSidebar: () => void }) => {
+  const [openSection, setOpenSection] = useState<string | null>(null);
 
   const cheatSheetData = useMemo(() => [
     {
@@ -76,11 +76,11 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
     },
   ], []);
 
-  const handleSectionToggle = (title) => {
+  const handleSectionToggle = (title: string) => {
     setOpenSection(openSection === title ? null : title);
   };
   
-  const handleInsertExample = (example) => {
+  const handleInsertExample = (example: string) => {
     console.log(`Pasting example:\n${example}`);
     alert(`Example copied to console!\n\n${example}`);
   };
@@ -129,11 +129,11 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
 
 // ========= UPLOAD FORM COMPONENT =========
 const UploadForm = () => {
-  const [file, setFile] = useState(null);
-  const [status, setStatus] = useState('idle');
+  const [file, setFile] = useState<File | null>(null);
+  const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       const allowedTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -148,7 +148,7 @@ const UploadForm = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!file) {
       setErrorMessage('Please select a file first.');
@@ -184,7 +184,7 @@ const UploadForm = () => {
 
       setStatus('success');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       setErrorMessage(error.message);
       setStatus('error');
