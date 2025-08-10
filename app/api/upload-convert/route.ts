@@ -4,8 +4,8 @@ import mammoth from 'mammoth';
 import pdf from 'pdf-parse';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
-// Import the new, modern Fountain library
-import { parse } from 'fountain-parser';
+// Import our NEW, internal Fountain parser
+const { parse } = require('../../../lib/fountain-parser.js');
 
 // This line prevents Vercel from trying to pre-render this route at build time
 export const dynamic = 'force-dynamic';
@@ -40,9 +40,8 @@ export async function POST(request: NextRequest) {
         return new NextResponse('Could not extract text from file.', { status: 400 });
     }
 
-    // 3. PARSE THE TEXT WITH THE NEW FOUNTAIN-PARSER
+    // 3. PARSE THE TEXT WITH OUR INTERNAL ENGINE
     const output = parse(rawText);
-    // The new library nests the HTML output differently
     const scriptHtml = output.html.script;
 
     // 4. GENERATE THE PDF USING PUPPETEER
