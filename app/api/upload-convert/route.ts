@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
 import pdf from 'pdf-parse';
-import { parse } from 'fountain-js';
+import * as fountain from 'fountain-js';
 import puppeteer from 'puppeteer-core';
 import chrome from '@sparticuz/chromium';
 
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    const parsedScript = parse(rawText);
+    const parsedScript = fountain.parse(rawText);
     const scriptHtml = parsedScript.script_html; // We get the script as HTML
 
     // 4. GENERATE THE PDF USING PUPPETEER
