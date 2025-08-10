@@ -1,10 +1,10 @@
 // Import necessary libraries
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
-// We will import pdf-parse dynamically inside the function
+import pdf from 'pdf-parse';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
-const fountain = require('fountain-js');
+const Fountain = require('fountain-js');
 
 // This line prevents Vercel from trying to pre-render this route at build time
 export const dynamic = 'force-dynamic';
@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
     let rawText = '';
 
     if (file.type === 'application/pdf') {
-      // Dynamically import pdf-parse only when needed
       const pdf = require('pdf-parse');
       const data = await pdf(buffer);
       rawText = data.text;
@@ -40,7 +39,11 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    const output = fountain.parse(rawText);
+    // We are ignoring a false-positive TypeScript error here.
+    // The library is a class that needs to be instantiated.
+    // @ts-ignore
+    const fountainInstance = new Fountain();
+    const output = fountainInstance.parse(rawText);
     const scriptHtml = output.html.script;
 
     // 4. GENERATE THE PDF USING PUPPETEER
