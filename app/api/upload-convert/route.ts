@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
             }
             
             .page:last-child {
-              page-break-after: avoid;
+              page-break-after: auto;
             }
             
             /* Page numbers */
@@ -319,42 +319,41 @@ export async function POST(request: NextRequest) {
       if (!scriptContent) return;
       
       const elements = Array.from(scriptContent.children);
-      const pageHeight = 9 * 72; // 9 inches in points (11in - 1in top - 1in bottom)
-      let currentPage = document.querySelector('.page');
+      const pageHeight = 9 * 96; // 9 inches in pixels (assuming 96 DPI)
+      let currentPage: HTMLElement | null = document.querySelector('.page');
+      let currentContentContainer = scriptContent;
       let currentHeight = 0;
       let pageNumber = 1;
       
       elements.forEach((element) => {
         const elementHeight = (element as HTMLElement).offsetHeight;
         
-        // Check if we need a new page
         if (currentHeight + elementHeight > pageHeight && currentHeight > 0) {
-          // Create new page
+          pageNumber++;
           const newPage = document.createElement('div');
           newPage.className = 'page';
           
-          // Add page number
           const pageNumberDiv = document.createElement('div');
           pageNumberDiv.className = 'page-number';
-          pageNumberDiv.textContent = `${++pageNumber}.`;
+          pageNumberDiv.textContent = `${pageNumber}.`;
           newPage.appendChild(pageNumberDiv);
           
-          // Create new script content container
           const newScriptContent = document.createElement('div');
           newScriptContent.className = 'script-content';
           newPage.appendChild(newScriptContent);
           
-          // Insert new page after current page
-          currentPage.after(newPage);
-          currentPage = newPage;
-          currentHeight = 0;
+          // This is the safety check that fixes the error
+          if (currentPage) {
+            currentPage.after(newPage);
+          }
           
-          // Move element to new page
-          newScriptContent.appendChild(element);
-          currentHeight += elementHeight;
-        } else {
-          currentHeight += elementHeight;
+          currentPage = newPage;
+          currentContentContainer = newScriptContent;
+          currentHeight = 0;
         }
+        
+        currentContentContainer.appendChild(element);
+        currentHeight += elementHeight;
       });
     });
 
