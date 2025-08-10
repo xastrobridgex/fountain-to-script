@@ -1,7 +1,7 @@
 // Import necessary libraries
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
-import pdf from 'pdf-parse';
+// We dynamically import pdf-parse below, so the top-level import is removed.
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 const Fountain = require('fountain-js');
@@ -39,9 +39,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    // We are ignoring a false-positive TypeScript error here.
-    // The library is a class that needs to be instantiated.
-    // @ts-ignore
+    // Using @ts-expect-error as requested by the linter.
+    // This tells TypeScript to ignore the next line, which we know is correct.
+    // @ts-expect-error
     const fountainInstance = new Fountain();
     const output = fountainInstance.parse(rawText);
     const scriptHtml = output.html.script;
