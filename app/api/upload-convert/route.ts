@@ -110,7 +110,6 @@ export async function POST(request: NextRequest) {
             .title-page .title {
               font-size: 14pt;
               text-transform: uppercase;
-              text-decoration: underline;
               margin-bottom: 4em;
               font-weight: normal;
             }
@@ -125,27 +124,29 @@ export async function POST(request: NextRequest) {
               margin-bottom: 6em;
             }
             
+            .title-page .notes,
             .title-page .date,
             .title-page .contact,
-            .title-page .notes {
+            .title-page .copyright {
               font-size: 12pt;
               position: absolute;
-              left: 1.5in;
-              right: 1in;
+              text-align: left;
+              left: 1.5in; /* Align to the main script left margin */
+              right: auto;
             }
-            
-            .title-page .date {
-              bottom: 3in;
-            }
-            
+
+            /* This stacks the elements from the bottom of the page up */
             .title-page .contact {
-              bottom: 2in;
-              text-align: left;
-            }
-            
-            .title-page .notes {
               bottom: 1.5in;
-              text-align: left;
+            }
+            .title-page .copyright {
+              bottom: 1.75in;
+            }
+            .title-page .date {
+              bottom: 2.0in;
+            }
+            .title-page .notes {
+              bottom: 2.25in;
             }
             
             /* Script Content Container */
@@ -154,30 +155,17 @@ export async function POST(request: NextRequest) {
               width: 6in; /* 8.5in - 1.5in left - 1in right */
             }
             
-            /* Scene Headings */
+            /* CORRECTED Scene Heading Layout */
             .scene-heading {
-              font-weight: normal;
+              font-weight: bold;
               text-transform: uppercase;
               margin-top: 2em;
               margin-bottom: 1em;
+              position: relative; /* Establishes a container for the numbers */
               page-break-after: avoid;
               page-break-before: auto;
-              position: relative;
             }
             
-            .scene-number-left,
-            .scene-number-right {
-              position: absolute;
-              font-weight: normal;
-            }
-            
-            .scene-number-left {
-              left: -0.5in; 
-            }
-            
-            .scene-number-right {
-              right: 0in;
-            }
             
             /* Action Lines */
             .action {
