@@ -4,7 +4,7 @@ import mammoth from 'mammoth';
 import pdf from 'pdf-parse';
 import { parse } from 'fountain-js';
 import puppeteer from 'puppeteer-core';
-import chrome from 'chrome-aws-lambda';
+import chrome from '@sparticuz/chromium';
 
 // This is the main function that handles incoming requests
 export async function POST(request: NextRequest) {
