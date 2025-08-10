@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
     let rawText = '';
 
     if (file.type === 'application/pdf') {
-      // pdf-parse must be required dynamically to avoid build errors
       const pdf = require('pdf-parse');
       const data = await pdf(buffer);
       rawText = data.text;
@@ -42,8 +41,7 @@ export async function POST(request: NextRequest) {
     // 3. PARSE THE TEXT WITH OUR INTERNAL ENGINE
     const output = parse(rawText);
     const { title_page, script } = output.html;
-    const fullHtml = title_page + script;
-
+    
     // 4. GENERATE THE PDF USING PUPPETEER
     const browser = await puppeteer.launch({
       args: chromium.args,
@@ -59,43 +57,76 @@ export async function POST(request: NextRequest) {
         <head>
           <link rel="preconnect" href="https://fonts.googleapis.com">
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+          <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap" rel="stylesheet">
           <style>
-            /* US Letter page size: 8.5in x 11in */
             @page {
               size: 8.5in 11in;
-              margin: 1in;
+              margin: 0; /* We'll control margins with padding */
             }
             body {
               font-family: 'Courier Prime', Courier, monospace;
               font-size: 12pt;
               line-height: 1;
+              margin: 0;
+              padding: 1in 1in 1in 1.5in; /* Top, Right, Bottom, Left */
+              box-sizing: border-box;
+              width: 8.5in;
+              height: 11in;
             }
-            h1 { text-align: center; margin-top: 2in; margin-bottom: 0.5in; }
-            p { margin: 0; padding: 0; }
-            .credit, .authors, .date, .contact, .notes { text-align: center; margin: 0; }
-            .authors { margin-top: 1em; }
-            
+            .page-container {
+                position: relative;
+                height: 9in; /* 11in - 1in top margin - 1in bottom margin */
+            }
+            .page-number {
+                position: absolute;
+                top: -0.5in;
+                right: 0;
+                font-size: 12pt;
+            }
+            .title-page {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 9in;
+                text-align: center;
+            }
+            .title-page .title { font-size: 24pt; margin-bottom: 1em; }
+            .title-page .credit { margin-top: 2em; }
+            .title-page .authors { margin-top: 0.5em; }
+            .title-page .date { position: absolute; bottom: 2in; }
+            .title-page .contact { position: absolute; bottom: 1.5in; }
+            .title-page .notes { position: absolute; bottom: 1in; }
+
             .scene-heading {
               text-transform: uppercase;
               margin-top: 1.5em;
               margin-bottom: 1em;
+              position: relative;
+            }
+            .scene-number-left {
+                position: absolute;
+                left: -0.5in;
+            }
+            .scene-number-right {
+                position: absolute;
+                right: 0;
             }
             .action {
               margin-top: 1em;
               margin-bottom: 1em;
             }
             .character {
-              margin-left: 2.2in; /* 3.7in from left edge of page */
+              margin-left: 2.2in;
               margin-top: 1em;
               text-transform: uppercase;
             }
             .dialogue {
-              margin-left: 1.5in; /* 2.5in from left edge of page */
-              margin-right: 1.5in; /* 7.0in from left edge of page */
+              margin-left: 1.0in;
+              margin-right: 1.5in;
             }
             .parenthetical {
-              margin-left: 2.1in; /* 3.1in from left edge of page */
+              margin-left: 1.6in;
             }
             .transition {
               text-align: right;
@@ -107,18 +138,6 @@ export async function POST(request: NextRequest) {
               margin-top: 1em;
               margin-bottom: 1em;
             }
-            .dual-dialogue-character {
-                float: left;
-                width: 45%;
-                margin-left: 0;
-                text-align: center;
-            }
-            .dual-dialogue {
-                float: left;
-                width: 45%;
-                margin-left: 0;
-                text-align: left;
-            }
             hr {
                 visibility: hidden;
                 page-break-after: always;
@@ -126,21 +145,32 @@ export async function POST(request: NextRequest) {
           </style>
         </head>
         <body>
-          ${fullHtml}
+          <div class="title-page">${title_page}</div>
+          <hr> <!-- Force page break after title page -->
+          <div class="page-container">
+            <div class="page-number"></div> <!-- Placeholder for JS to fill -->
+            ${script}
+          </div>
         </body>
       </html>
     `;
 
     await page.setContent(content, { waitUntil: 'networkidle0' });
+    
+    // Use JavaScript to add page numbers
+    await page.evaluate(() => {
+        const pages = document.querySelectorAll('.page-container');
+        for (let i = 0; i < pages.length; i++) {
+            const pageNumDiv = pages[i].querySelector('.page-number');
+            if (pageNumDiv) {
+                pageNumDiv.innerHTML = `${i + 2}.`;
+            }
+        }
+    });
+
     const pdfBuffer = await page.pdf({ 
         format: 'letter',
         printBackground: true,
-        margin: {
-            top: '1in',
-            right: '1in',
-            bottom: '1in',
-            left: '1.5in'
-        }
     });
 
     await browser.close();
