@@ -2,11 +2,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
 import pdf from 'pdf-parse';
-const Fountain = require('fountain-js');
 import puppeteer from 'puppeteer-core';
-import chrome from '@sparticuz/chromium';
+import chromium from '@sparticuz/chromium';
+const Fountain = require('fountain-js');
 
-// This is the main function that handles incoming requests
 export async function POST(request: NextRequest) {
   try {
     // 1. GET THE UPLOADED FILE
@@ -27,7 +26,7 @@ export async function POST(request: NextRequest) {
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const { value } = await mammoth.extractRawText({ buffer });
       rawText = value;
-    } else { // Default to plain text for .txt, .fountain, etc.
+    } else {
       rawText = buffer.toString('utf8');
     }
 
@@ -37,15 +36,16 @@ export async function POST(request: NextRequest) {
 
     // 3. PARSE THE TEXT WITH FOUNTAIN-JS
     const fountainInstance = new Fountain();
-const output = fountainInstance.parse(rawText);
-const scriptHtml = output.html.script;
+    const output = fountainInstance.parse(rawText);
+    const scriptHtml = output.html.script;
 
-    // 4. GENERATE THE PDF USING PUPPETEER
-    // This sets up a lightweight browser instance on the server
+    // 4. GENERATE THE PDF USING PUPPETEER (Corrected Options)
     const browser = await puppeteer.launch({
-      args: chrome.args,
-      executablePath: await chrome.executablePath,
-      headless: chrome.headless,
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage();
@@ -55,13 +55,13 @@ const scriptHtml = output.html.script;
       <html>
         <head>
           <style>
-            body { font-family: 'Courier New', Courier, monospace; margin: 1in; }
-            .dialogue { margin-left: 2in; margin-right: 1.5in; }
-            .character { margin-left: 3.5in; text-transform: uppercase; }
-            .parenthetical { margin-left: 3in; }
-            .scene-heading { text-transform: uppercase; margin-top: 1em; margin-bottom: 1em; }
-            .action { margin-bottom: 1em; }
-            .transition { text-transform: uppercase; text-align: right; margin-top: 1em; margin-bottom: 1em; }
+            body { font-family: 'Courier New', Courier, monospace; margin: 1in; line-height: 1.5; }
+            .dialogue { margin-left: 2.5in; margin-right: 1.5in; max-width: 3.5in; }
+            .character { margin-left: 3.7in; text-transform: uppercase; }
+            .parenthetical { margin-left: 3.1in; }
+            .scene-heading { text-transform: uppercase; margin-top: 1.5em; margin-bottom: 1.5em; }
+            .action { margin-top: 1em; margin-bottom: 1em; }
+            .transition { text-transform: uppercase; text-align: right; margin-top: 1.5em; margin-bottom: 1.5em; }
           </style>
         </head>
         <body>
@@ -71,7 +71,7 @@ const scriptHtml = output.html.script;
     `;
 
     await page.setContent(content, { waitUntil: 'networkidle0' });
-    const pdfBuffer = await page.pdf({ format: 'A4' });
+    const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
 
     await browser.close();
 
@@ -86,6 +86,8 @@ const scriptHtml = output.html.script;
 
   } catch (error) {
     console.error('Conversion Error:', error);
-    return new NextResponse('Error converting file.', { status: 500 });
+    // Provide a more descriptive error message
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    return new NextResponse(`Error converting file: ${errorMessage}`, { status: 500 });
   }
 }
