@@ -6,6 +6,9 @@ import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 const fountain = require('fountain-js');
 
+// This line prevents Vercel from trying to pre-render this route at build time
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // 1. GET THE UPLOADED FILE
@@ -72,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     await browser.close();
 
-    // 5. SEND THE PDF BACK TO THE USER (Corrected with Buffer.from)
+    // 5. SEND THE PDF BACK TO THE USER
     return new Response(Buffer.from(pdfBuffer), {
       status: 200,
       headers: {
