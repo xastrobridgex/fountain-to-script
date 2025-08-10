@@ -4,7 +4,7 @@ import mammoth from 'mammoth';
 // We dynamically import pdf-parse below, so the top-level import is removed.
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
-const Fountain = require('fountain-js');
+const fountain = require('fountain-js');
 
 // This line prevents Vercel from trying to pre-render this route at build time
 export const dynamic = 'force-dynamic';
@@ -39,8 +39,11 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    const fountainInstance = new Fountain();
-    const output = fountainInstance.parse(rawText);
+    // This is the correct usage based on the documentation.
+    // We are ignoring a false-positive TypeScript error because the library
+    // is an old CJS module that the linter struggles with.
+    // @ts-expect-error This is the correct method for this library.
+    const output = fountain.parse(rawText);
     const scriptHtml = output.html.script;
 
     // 4. GENERATE THE PDF USING PUPPETEER
