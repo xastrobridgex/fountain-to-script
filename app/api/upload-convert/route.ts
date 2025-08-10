@@ -60,28 +60,45 @@ export async function POST(request: NextRequest) {
           <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
           <style>
             /* Reset and Page Setup */
-            * { box-sizing: border-box; }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
             
             @page {
               size: 8.5in 11in;
-              margin: 1in 1in 1in 1.5in;
+              /* Margins are now handled by the page.pdf() call */
             }
             
+            /* Body - Main container */
             body {
               font-family: 'Courier Prime', 'Courier New', Courier, monospace;
               font-size: 12pt;
-              line-height: 1.15;
-            }
-
-            p, div {
-                margin-top: 0;
-                margin-bottom: 1em; /* Standard line break */
+              line-height: 1;
             }
             
+            /* The .page class is now only for the title page */
+            .page {
+              position: relative;
+              width: 8.5in;
+              height: 11in;
+              padding: 1in 1in 1in 1.5in; /* Top, Right, Bottom, Left */
+              page-break-after: always;
+              page-break-inside: avoid;
+            }
+            
+            .page:last-child {
+              page-break-after: auto;
+            }
+            
+            /* REMOVED .page-number since Puppeteer now handles it */
+            
             /* Title Page Styling */
-            .title-page-container {
-              width: 100%;
-              height: 9in; /* Full page height minus margins */
+            .title-page {
+              width: 8.5in;
+              height: 11in;
+              padding: 1in;
               display: flex;
               flex-direction: column;
               justify-content: center;
@@ -90,62 +107,113 @@ export async function POST(request: NextRequest) {
               page-break-after: always;
             }
             
-            .title-page-content {
-                margin-top: -2in; /* Adjust to center vertically */
-            }
-
-            .title-page-container h1.title {
+            .title-page .title {
               font-size: 14pt;
               text-transform: uppercase;
-              margin-bottom: 2em;
+              text-decoration: underline;
+              margin-bottom: 4em;
+              font-weight: normal;
             }
             
-            .title-page-container p {
-              margin-bottom: 0.5em;
+            .title-page .credit {
+              font-size: 12pt;
+              margin-bottom: 1em;
+            }
+            
+            .title-page .authors {
+              font-size: 12pt;
+              margin-bottom: 6em;
+            }
+            
+            .title-page .date,
+            .title-page .contact,
+            .title-page .notes {
+              font-size: 12pt;
+              position: absolute;
+              left: 1.5in;
+              right: 1in;
+            }
+            
+            .title-page .date {
+              bottom: 3in;
+            }
+            
+            .title-page .contact {
+              bottom: 2in;
+              text-align: left;
+            }
+            
+            .title-page .notes {
+              bottom: 1.5in;
+              text-align: left;
+            }
+            
+            /* Script Content Container */
+            .script-content {
+              /* This container now holds all the script elements directly */
+              width: 6in; /* 8.5in - 1.5in left - 1in right */
             }
             
             /* Scene Headings */
             .scene-heading {
+              font-weight: normal;
               text-transform: uppercase;
-              margin-top: 1.5em;
+              margin-top: 2em;
               margin-bottom: 1em;
+              page-break-after: avoid;
+              page-break-before: auto;
               position: relative;
             }
             
-            .scene-number-left {
+            .scene-number-left,
+            .scene-number-right {
               position: absolute;
-              left: -0.5in;
+              font-weight: normal;
+            }
+            
+            .scene-number-left {
+              left: -0.5in; 
             }
             
             .scene-number-right {
-              position: absolute;
-              right: -0.5in;
+              right: 0in;
             }
             
             /* Action Lines */
             .action {
+              margin-top: 1em;
               margin-bottom: 1em;
+              width: 6in;
+              page-break-inside: auto; /* Allow actions to break across pages */
             }
             
             /* Character Names */
             .character {
               text-transform: uppercase;
-              margin-left: 2.2in;
+              margin-top: 1em;
               margin-bottom: 0;
+              margin-left: 2.2in;
+              page-break-after: avoid; /* Keeps character name with dialogue */
             }
             
             /* Dialogue */
             .dialogue {
-              margin-left: 1.0in;
+              margin-top: 0;
+              margin-bottom: 0;
+              margin-left: 1in;
               margin-right: 1.5in;
-              margin-bottom: 1em;
+              width: 3.5in;
+              page-break-inside: auto; /* Allow dialogue to break across pages */
             }
             
             /* Parentheticals */
             .parenthetical {
-              margin-left: 1.6in;
-              margin-right: 2.0in;
+              margin-top: 0;
               margin-bottom: 0;
+              margin-left: 1.6in;
+              margin-right: 2in;
+              page-break-inside: avoid;
+              page-break-after: avoid;
             }
             
             /* Transitions */
@@ -154,6 +222,8 @@ export async function POST(request: NextRequest) {
               text-align: right;
               margin-top: 1em;
               margin-bottom: 1em;
+              margin-right: 0;
+              page-break-after: avoid;
             }
             
             /* Centered Text */
@@ -163,18 +233,20 @@ export async function POST(request: NextRequest) {
               margin-bottom: 1em;
             }
             
-            /* Text Emphasis */
-            b, i, u { display: inline; }
-            
-            /* Page break handling */
-            hr { display: none; }
-            
+            hr {
+              visibility: hidden;
+              margin: 0;
+              padding: 0;
+              page-break-after: always;
+              height: 0;
+            }
+
           </style>
         </head>
         <body>
-          ${title_page ? `<div class="title-page-container"><div class="title-page-content">${title_page}</div></div>` : ''}
+          ${title_page ? `<div class="title-page">${title_page}</div>` : ''}
           <div class="script-content">
-            ${script}
+              ${script}
           </div>
         </body>
       </html>
@@ -182,12 +254,15 @@ export async function POST(request: NextRequest) {
 
     await page.setContent(content, { waitUntil: 'networkidle0' });
     
+    // Improved pagination logic
     const pdfBuffer = await page.pdf({ 
         format: 'letter',
         printBackground: true,
-        displayHeaderFooter: true,
-        headerTemplate: `<div style="font-size:10px; margin-left:1.5in; margin-right:1in;"></div>`, // Empty header
-        footerTemplate: `<div style="font-size:10px; margin-left:1.5in; margin-right:1in;"></div>`, // Empty footer
+        displayHeaderFooter: true, // This enables the header
+        // This template adds the page number to the top right of each page
+        headerTemplate: `<div style="font-family: 'Courier Prime', 'Courier New', Courier, monospace; font-size: 12pt; text-align: right; width: calc(100% - 2in); padding-top: 0.5in; padding-right: 1in;"><span class="pageNumber"></span>.</div>`,
+        footerTemplate: '<div></div>', // This ensures the footer is empty
+        // Use standard 1-inch margins, which Puppeteer will manage
         margin: {
           top: '1in',
           right: '1in',
