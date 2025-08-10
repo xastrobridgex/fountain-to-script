@@ -60,55 +60,28 @@ export async function POST(request: NextRequest) {
           <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
           <style>
             /* Reset and Page Setup */
-            * {
-              margin: 0;
-              padding: 0;
-              box-sizing: border-box;
-            }
+            * { box-sizing: border-box; }
             
             @page {
               size: 8.5in 11in;
-              margin: 0;
+              margin: 1in 1in 1in 1.5in;
             }
             
-            /* Body - Main container */
             body {
               font-family: 'Courier Prime', 'Courier New', Courier, monospace;
               font-size: 12pt;
-              line-height: 1;
-              margin: 0;
-              padding: 0;
-              width: 8.5in;
-              background: white;
+              line-height: 1.15;
             }
-            
-            /* Page container for each page */
-            .page {
-              position: relative;
-              width: 8.5in;
-              height: 11in;
-              padding: 1in 1in 1in 1.5in; /* Top, Right, Bottom, Left */
-              page-break-after: always;
-              page-break-inside: avoid;
-            }
-            
-            .page:last-child {
-              page-break-after: auto;
-            }
-            
-            /* Page numbers */
-            .page-number {
-              position: absolute;
-              top: 0.5in;
-              right: 1in;
-              font-size: 12pt;
+
+            p, div {
+                margin-top: 0;
+                margin-bottom: 1em; /* Standard line break */
             }
             
             /* Title Page Styling */
-            .title-page {
-              width: 8.5in;
-              height: 11in;
-              padding: 1in;
+            .title-page-container {
+              width: 100%;
+              height: 9in; /* Full page height minus margins */
               display: flex;
               flex-direction: column;
               justify-content: center;
@@ -117,111 +90,62 @@ export async function POST(request: NextRequest) {
               page-break-after: always;
             }
             
-            .title-page .title {
+            .title-page-content {
+                margin-top: -2in; /* Adjust to center vertically */
+            }
+
+            .title-page-container h1.title {
               font-size: 14pt;
               text-transform: uppercase;
-              text-decoration: underline;
-              margin-bottom: 4em;
-              font-weight: normal;
+              margin-bottom: 2em;
             }
             
-            .title-page .credit {
-              font-size: 12pt;
-              margin-bottom: 1em;
-            }
-            
-            .title-page .authors {
-              font-size: 12pt;
-              margin-bottom: 6em;
-            }
-            
-            .title-page .date,
-            .title-page .contact,
-            .title-page .notes {
-              font-size: 12pt;
-              position: absolute;
-              left: 1.5in;
-              right: 1in;
-            }
-            
-            .title-page .date {
-              bottom: 3in;
-            }
-            
-            .title-page .contact {
-              bottom: 2in;
-              text-align: left;
-            }
-            
-            .title-page .notes {
-              bottom: 1.5in;
-              text-align: left;
-            }
-            
-            /* Script Content Container */
-            .script-content {
-              width: 6in; /* 8.5in - 1.5in left - 1in right */
+            .title-page-container p {
+              margin-bottom: 0.5em;
             }
             
             /* Scene Headings */
             .scene-heading {
-              font-weight: normal;
               text-transform: uppercase;
-              margin-top: 2em;
+              margin-top: 1.5em;
               margin-bottom: 1em;
-              page-break-after: avoid;
               position: relative;
             }
             
-            .scene-number-left,
+            .scene-number-left {
+              position: absolute;
+              left: -0.5in;
+            }
+            
             .scene-number-right {
               position: absolute;
-              font-weight: normal;
-            }
-            
-            .scene-number-left {
-              left: -0.75in;
-            }
-            
-            .scene-number-right {
               right: -0.5in;
             }
             
             /* Action Lines */
             .action {
-              margin-top: 1em;
               margin-bottom: 1em;
-              width: 6in;
-              page-break-inside: avoid;
             }
             
             /* Character Names */
             .character {
               text-transform: uppercase;
-              margin-top: 1em;
+              margin-left: 2.2in;
               margin-bottom: 0;
-              margin-left: 2.2in; /* Centers at approximately 3.7in from left edge */
-              page-break-after: avoid;
             }
             
             /* Dialogue */
             .dialogue {
-              margin-top: 0;
-              margin-bottom: 0;
-              margin-left: 1in;
+              margin-left: 1.0in;
               margin-right: 1.5in;
-              width: 3.5in;
-              page-break-inside: avoid;
+              margin-bottom: 1em;
             }
             
             /* Parentheticals */
             .parenthetical {
-              margin-top: 0;
-              margin-bottom: 0;
               margin-left: 1.6in;
-              margin-right: 2in;
-              page-break-inside: avoid;
-              page-break-after: avoid;
+              margin-right: 2.0in;
+              margin-bottom: 0;
             }
             
             /* Transitions */
@@ -230,8 +154,6 @@ export async function POST(request: NextRequest) {
               text-align: right;
               margin-top: 1em;
               margin-bottom: 1em;
-              margin-right: 0;
-              page-break-after: avoid;
             }
             
             /* Centered Text */
@@ -242,70 +164,17 @@ export async function POST(request: NextRequest) {
             }
             
             /* Text Emphasis */
-            b {
-              font-weight: bold;
-            }
-            
-            i {
-              font-style: italic;
-            }
-            
-            u {
-              text-decoration: underline;
-            }
+            b, i, u { display: inline; }
             
             /* Page break handling */
-            hr {
-              visibility: hidden;
-              margin: 0;
-              padding: 0;
-              page-break-after: always;
-              height: 0;
-            }
+            hr { display: none; }
             
-            /* Ensure consistent line spacing */
-            .scene-heading,
-            .action,
-            .character,
-            .dialogue,
-            .parenthetical,
-            .transition,
-            .centered {
-              line-height: 1;
-            }
-            
-            /* Dual dialogue support (future enhancement) */
-            .dual-dialogue-container {
-              display: flex;
-              justify-content: space-between;
-              page-break-inside: avoid;
-            }
-            
-            .dual-dialogue-left,
-            .dual-dialogue-right {
-              width: 45%;
-            }
-            
-            /* CONTINUED indicators (future enhancement) */
-            .continued-top {
-              text-transform: uppercase;
-              margin-bottom: 1em;
-            }
-            
-            .continued-bottom {
-              text-transform: uppercase;
-              text-align: right;
-              margin-top: 1em;
-            }
           </style>
         </head>
         <body>
-          ${title_page ? `<div class="title-page">${title_page}</div>` : ''}
-          <div class="page">
-            <div class="page-number">1.</div>
-            <div class="script-content">
-              ${script}
-            </div>
+          ${title_page ? `<div class="title-page-container"><div class="title-page-content">${title_page}</div></div>` : ''}
+          <div class="script-content">
+            ${script}
           </div>
         </body>
       </html>
@@ -313,59 +182,17 @@ export async function POST(request: NextRequest) {
 
     await page.setContent(content, { waitUntil: 'networkidle0' });
     
-    // Improved pagination logic
-    await page.evaluate(() => {
-      const scriptContent = document.querySelector('.script-content');
-      if (!scriptContent) return;
-      
-      const elements = Array.from(scriptContent.children);
-      const pageHeight = 9 * 96; // 9 inches in pixels (assuming 96 DPI)
-      let currentPage: HTMLElement | null = document.querySelector('.page');
-      let currentContentContainer = scriptContent;
-      let currentHeight = 0;
-      let pageNumber = 1;
-      
-      elements.forEach((element) => {
-        const elementHeight = (element as HTMLElement).offsetHeight;
-        
-        if (currentHeight + elementHeight > pageHeight && currentHeight > 0) {
-          pageNumber++;
-          const newPage = document.createElement('div');
-          newPage.className = 'page';
-          
-          const pageNumberDiv = document.createElement('div');
-          pageNumberDiv.className = 'page-number';
-          pageNumberDiv.textContent = `${pageNumber}.`;
-          newPage.appendChild(pageNumberDiv);
-          
-          const newScriptContent = document.createElement('div');
-          newScriptContent.className = 'script-content';
-          newPage.appendChild(newScriptContent);
-          
-          // This is the safety check that fixes the error
-          if (currentPage) {
-            currentPage.after(newPage);
-          }
-          
-          currentPage = newPage;
-          currentContentContainer = newScriptContent;
-          currentHeight = 0;
-        }
-        
-        currentContentContainer.appendChild(element);
-        currentHeight += elementHeight;
-      });
-    });
-
     const pdfBuffer = await page.pdf({ 
         format: 'letter',
         printBackground: true,
-        displayHeaderFooter: false,
+        displayHeaderFooter: true,
+        headerTemplate: `<div style="font-size:10px; margin-left:1.5in; margin-right:1in;"></div>`, // Empty header
+        footerTemplate: `<div style="font-size:10px; margin-left:1.5in; margin-right:1in;"></div>`, // Empty footer
         margin: {
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0
+          top: '1in',
+          right: '1in',
+          bottom: '1in',
+          left: '1.5in'
         }
     });
 
