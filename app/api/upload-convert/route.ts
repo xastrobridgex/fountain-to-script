@@ -1,10 +1,11 @@
 // Import necessary libraries
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
-// We dynamically import pdf-parse below, so the top-level import is removed.
+import pdf from 'pdf-parse';
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
-const fountain = require('fountain-js');
+// Import the new, modern Fountain library
+import { parse } from 'fountain-parser';
 
 // This line prevents Vercel from trying to pre-render this route at build time
 export const dynamic = 'force-dynamic';
@@ -24,8 +25,9 @@ export async function POST(request: NextRequest) {
     let rawText = '';
 
     if (file.type === 'application/pdf') {
-      const pdf = require('pdf-parse');
-      const data = await pdf(buffer);
+      // pdf-parse must be required dynamically to avoid build errors
+      const pdf_parser = require('pdf-parse');
+      const data = await pdf_parser(buffer);
       rawText = data.text;
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       const { value } = await mammoth.extractRawText({ buffer });
@@ -38,8 +40,9 @@ export async function POST(request: NextRequest) {
         return new NextResponse('Could not extract text from file.', { status: 400 });
     }
 
-    // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    const output = fountain.parse(rawText);
+    // 3. PARSE THE TEXT WITH THE NEW FOUNTAIN-PARSER
+    const output = parse(rawText);
+    // The new library nests the HTML output differently
     const scriptHtml = output.html.script;
 
     // 4. GENERATE THE PDF USING PUPPETEER
