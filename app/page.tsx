@@ -184,9 +184,13 @@ const UploadForm = () => {
 
       setStatus('success');
 
-    } catch (error: any) {
+    } catch (error: unknown) { // Corrected from 'any' to 'unknown'
       console.error(error);
-      setErrorMessage(error.message);
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('An unknown error occurred.');
+      }
       setStatus('error');
     } finally {
         setTimeout(() => {
