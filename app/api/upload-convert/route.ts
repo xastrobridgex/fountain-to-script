@@ -39,10 +39,9 @@ export async function POST(request: NextRequest) {
     const output = fountainInstance.parse(rawText);
     const scriptHtml = output.html.script;
 
-    // 4. GENERATE THE PDF USING PUPPETEER (Corrected Options)
+    // 4. GENERATE THE PDF USING PUPPETEER
     const browser = await puppeteer.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
@@ -86,7 +85,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Conversion Error:', error);
-    // Provide a more descriptive error message
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
     return new NextResponse(`Error converting file: ${errorMessage}`, { status: 500 });
   }
