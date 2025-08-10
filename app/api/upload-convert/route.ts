@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     const browser = await puppeteer.launch({
       args: chromium.args,
       executablePath: await chromium.executablePath(),
-      headless: true,
+      headless: "shell",
     });
 
     const page = await browser.newPage();
@@ -73,11 +73,10 @@ export async function POST(request: NextRequest) {
 
     await browser.close();
 
-    // 5. SEND THE PDF BACK TO THE USER
-    return new NextResponse(pdfBuffer, {
+    // 5. SEND THE PDF BACK TO THE USER (Corrected with Blob)
+    return new NextResponse(new Blob([pdfBuffer], { type: 'application/pdf' }), {
       status: 200,
       headers: {
-        'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${file.name.replace(/\.[^/.]+$/, "")}_converted.pdf"`,
       },
     });
