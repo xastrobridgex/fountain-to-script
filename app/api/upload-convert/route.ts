@@ -1,7 +1,7 @@
 // Import necessary libraries
 import { NextRequest, NextResponse } from 'next/server';
 import mammoth from 'mammoth';
-import pdf from 'pdf-parse';
+// We will import pdf-parse dynamically inside the function
 import puppeteer from 'puppeteer-core';
 import chromium from '@sparticuz/chromium';
 const fountain = require('fountain-js');
@@ -24,6 +24,8 @@ export async function POST(request: NextRequest) {
     let rawText = '';
 
     if (file.type === 'application/pdf') {
+      // Dynamically import pdf-parse only when needed
+      const pdf = require('pdf-parse');
       const data = await pdf(buffer);
       rawText = data.text;
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
