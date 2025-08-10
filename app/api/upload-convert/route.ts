@@ -39,10 +39,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    // This is the correct usage based on the documentation.
-    // We are ignoring a false-positive TypeScript error because the library
-    // is an old CJS module that the linter struggles with.
-    // @ts-expect-error This is the correct method for this library.
     const output = fountain.parse(rawText);
     const scriptHtml = output.html.script;
 
