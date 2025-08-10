@@ -39,9 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 3. PARSE THE TEXT WITH FOUNTAIN-JS
-    // Using @ts-expect-error as requested by the linter.
-    // This tells TypeScript to ignore the next line, which we know is correct.
-    // @ts-expect-error
+    // @ts-expect-error fountain-js is a CJS module with no official types.
     const fountainInstance = new Fountain();
     const output = fountainInstance.parse(rawText);
     const scriptHtml = output.html.script;
